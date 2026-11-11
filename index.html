@@ -7,77 +7,117 @@
   covers/album-1.jpg ...          <- your album covers (square images work best)
 -->
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>NICK JASPER</title>
-  <meta name="theme-color" content="#000000">
 
-  <style>
-    /* ------------------------------------------------------------------
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>nj</title>
+    <meta name="theme-color" content="#000000">
+
+    <style>
+        /* ------------------------------------------------------------------
        FONT (self-hosted)
     ------------------------------------------------------------------ */
-    @font-face {
-      font-family: "Space Mono";
-      src: url("fonts/SpaceMono-Regular.ttf") format("truetype");
-      font-weight: 400;
-      font-style: normal;
-      font-display: block;
-    }
+        @font-face {
+            font-family: "Space Mono";
+            src: url("fonts/SpaceMono-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-style: normal;
+            font-display: block;
+        }
 
-    /* ------------------------------------------------------------------
+        /* ------------------------------------------------------------------
        TWEAKABLE LAYOUT VALUES
     ------------------------------------------------------------------ */
-    :root {
-      --bg: #000;
-      --fg: #fff;
+        :root {
+            --bg: #000;
+            --fg: #fff;
 
-      --pad: clamp(1rem, 3vw, 2.5rem);          /* page side padding */
-      --grid-min: 220px;                         /* min album box width, controls column count */
-      --grid-gap: clamp(1rem, 2.5vw, 2rem);   /* spacing between album boxes */
+            --pad: clamp(1rem, 3vw, 2.5rem);
+            /* page side padding */
+            --grid-min: 220px;
+            /* min album box width, controls column count */
+            --grid-gap: clamp(1rem, 2.5vw, 2rem);
+            /* spacing between album boxes */
 
-      /* title fitting (Space Mono is 0.612em wide per character) */
-      --char-w: 0.612;
-      --title-lh: 0.8;      /* line height of the big text, lower = tighter */
-      --title-gap: 0.08;    /* gap between NICK and JASPER, in em */
-      --title-width: 33.3333vw;   /* total width of the NICK JASPER block (a third of the screen) */
-    }
+            /* title fitting (Space Mono is 0.612em wide per character) */
+            --char-w: 0.612;
+            --title-lh: 0.8;
+            /* line height of the big text, lower = tighter */
+            --title-gap: 0.08;
+            /* gap between NICK and JASPER, in em */
+            --title-width: 33.3333vw;
+            /* total width of the NICK JASPER block (a third of the screen) */
+        }
 
-    /* ------------------------------------------------------------------
+        /* ------------------------------------------------------------------
        BASE
     ------------------------------------------------------------------ */
-    *, *::before, *::after { box-sizing: border-box; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
 
-    html {
-      background: var(--bg);
-      scrollbar-width: none;          /* hide scrollbar: Firefox */
-      -ms-overflow-style: none;
-      overscroll-behavior: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    html::-webkit-scrollbar,
-    body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+        html {
+            background: var(--bg);
+            scrollbar-width: none;
+            /* hide scrollbar: Firefox */
+            -ms-overflow-style: none;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: "Space Mono", monospace;
-      font-weight: 400;
-      font-synthesis: none;
-      line-height: 1.4;
-    }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
 
-    h1, p, ol { margin: 0; font-weight: 400; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: "Space Mono", monospace;
+            font-weight: 400;
+            font-synthesis: none;
+            line-height: 1.4;
+        }
 
-    /* Lenis required styles */
-    html.lenis, html.lenis body { height: auto; }
-    .lenis.lenis-smooth { scroll-behavior: auto !important; }
-    .lenis.lenis-stopped { overflow: clip; }
+        h1,
+        p,
+        ol {
+            margin: 0;
+            font-weight: 400;
+        }
 
-    :focus-visible { outline: 1px solid var(--fg); outline-offset: 4px; }
+        /* Lenis required styles */
+        html.lenis,
+        html.lenis body {
+            height: auto;
+        }
 
-    /* ------------------------------------------------------------------
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: clip;
+        }
+
+        :focus-visible {
+            outline: 1px solid var(--fg);
+            outline-offset: 4px;
+        }
+
+        a,
+        img {
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        /* ------------------------------------------------------------------
        CUSTOM CURSOR
        White ring (outline only). backdrop-filter turns every pixel
        behind it to greyscale, thresholds at 50% brightness, then
@@ -85,384 +125,413 @@
        The mask cuts out the middle so only the outline is visible.
        Ring thickness is set from CURSOR.thickness in the script.
     ------------------------------------------------------------------ */
-    .cursor {
-      --ring: 2px;
-      position: fixed;
-      left: 0;
-      top: 0;
-      z-index: 2147483647;
-      border-radius: 50%;
-      pointer-events: none;
-      visibility: hidden;
-      will-change: transform;
-      -webkit-backdrop-filter: grayscale(1) contrast(255) invert(1);
-      backdrop-filter: grayscale(1) contrast(255) invert(1);
-      -webkit-mask: radial-gradient(circle closest-side, transparent calc(100% - var(--ring) - 0.5px), #000 calc(100% - var(--ring)));
-      mask: radial-gradient(circle closest-side, transparent calc(100% - var(--ring) - 0.5px), #000 calc(100% - var(--ring)));
-    }
-    .cursor.on { visibility: visible; }
+        .cursor {
+            --ring: 2px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 2147483647;
+            border-radius: 50%;
+            pointer-events: none;
+            visibility: hidden;
+            will-change: transform;
+            -webkit-backdrop-filter: grayscale(1) contrast(255) invert(1);
+            backdrop-filter: grayscale(1) contrast(255) invert(1);
+            -webkit-mask: radial-gradient(circle closest-side, transparent calc(100% - var(--ring) - 0.5px), #000 calc(100% - var(--ring)));
+            mask: radial-gradient(circle closest-side, transparent calc(100% - var(--ring) - 0.5px), #000 calc(100% - var(--ring)));
+        }
 
-    @media (hover: hover) and (pointer: fine) {
-      html, html * { cursor: none !important; }
-    }
-    @media (hover: none), (pointer: coarse) {
-      .cursor { display: none; }
-    }
+        .cursor.on {
+            visibility: visible;
+        }
 
-    /* ------------------------------------------------------------------
+        @media (hover: hover) and (pointer: fine) {
+
+            html,
+            html * {
+                cursor: none !important;
+            }
+        }
+
+        @media (hover: none),
+        (pointer: coarse) {
+            .cursor {
+                display: none;
+            }
+        }
+
+        /* ------------------------------------------------------------------
        TITLE
     ------------------------------------------------------------------ */
-    .hero {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-    .title {
-      --block-h: calc(var(--title-lh) * 2);                         /* two lines tall */
-      --nick-scale: calc(var(--block-h) / (4 * var(--char-w)));     /* NICK is as long as the block is tall */
-      --nick-col: calc(var(--title-lh) * var(--nick-scale));
-      --total-w: calc(3 * var(--char-w) + var(--title-gap) + var(--nick-col));
+        .title {
+            --block-h: calc(var(--title-lh) * 2);
+            /* two lines tall */
+            --nick-scale: calc(var(--block-h) / (4 * var(--char-w)));
+            /* NICK is as long as the block is tall */
+            --nick-col: calc(var(--title-lh) * var(--nick-scale));
+            --total-w: calc(3 * var(--char-w) + var(--title-gap) + var(--nick-col));
 
-      display: flex;
-      align-items: center;
-      gap: calc(var(--title-gap) * 1em);
-      line-height: var(--title-lh);
-      white-space: nowrap;
-      user-select: none;
-      -webkit-user-select: none;
-      font-size: calc(var(--title-width) / var(--total-w));
-    }
+            display: flex;
+            align-items: center;
+            gap: calc(var(--title-gap) * 1em);
+            line-height: var(--title-lh);
+            white-space: nowrap;
+            user-select: none;
+            -webkit-user-select: none;
+            font-size: calc(var(--title-width) / var(--total-w));
+        }
 
-    .nick {
-      font-size: calc(var(--nick-scale) * 1em);
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);      /* reads bottom to top = rotated 90deg counterclockwise */
-    }
+        .nick {
+            font-size: calc(var(--nick-scale) * 1em);
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            /* reads bottom to top = rotated 90deg counterclockwise */
+        }
 
-    .line { display: block; }
+        .line {
+            display: block;
+        }
 
-    /* use the LARGE viewport height so the title stays put when mobile toolbars show/hide */
-    @supports (height: 100lvh) {
-      .hero { height: 100lvh; }
-    }
+        /* use the LARGE viewport height so the title stays put when mobile toolbars show/hide */
+        @supports (height: 100lvh) {
+            .hero {
+                height: 100lvh;
+            }
+        }
 
-    /* ------------------------------------------------------------------
+        /* ------------------------------------------------------------------
        DISCOGRAPHY
     ------------------------------------------------------------------ */
-    .discography {
-      padding: var(--pad);
-    }
+        .discography {
+            padding: var(--pad);
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr));
-      gap: var(--grid-gap);
-    }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr));
+            gap: var(--grid-gap);
+        }
 
-    .album {
-      display: block;
-      padding: 0.75rem;
-      color: inherit;
-      text-decoration: none;
-      background-color: rgba(255, 255, 255, 0);   /* animated by JS */
-    }
+        .album {
+            display: block;
+            padding: 0.75rem;
+            color: inherit;
+            text-decoration: none;
+            background-color: rgba(255, 255, 255, 0);
+            /* animated by JS */
+        }
 
-    .cover {
-      aspect-ratio: 1 / 1;
-      background: #141414;                         /* placeholder until the image loads */
-      overflow: hidden;
-    }
+        .cover {
+            aspect-ratio: 1 / 1;
+            background: #141414;
+            /* placeholder until the image loads */
+            overflow: hidden;
+        }
 
-    .cover img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
+        .cover img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
 
-    .album-title {
-      text-align: center;
-      margin-top: 0.6rem;
-      font-size: 0.875rem;
-      line-height: 1.35;
-      overflow-wrap: anywhere;
-    }
+        .album-title {
+            text-align: center;
+            margin-top: 0.6rem;
+            font-size: 0.875rem;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
 
-    /* ------------------------------------------------------------------
+        /* ------------------------------------------------------------------
        FOOTER LINKS
     ------------------------------------------------------------------ */
-    .links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      text-align: center;
-      gap: 0.5rem 2rem;
-      padding: calc(var(--pad) * 2) var(--pad);
-      padding-bottom: calc(var(--pad) * 2 + env(safe-area-inset-bottom, 0px));
-    }
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            text-align: center;
+            gap: 0.5rem 2rem;
+            padding: calc(var(--pad) * 2) var(--pad);
+            padding-bottom: calc(var(--pad) * 2 + env(safe-area-inset-bottom, 0px));
+        }
 
-    .link {
-      color: inherit;
-      text-decoration-line: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 0.3em;
-      text-decoration-color: rgba(255, 255, 255, 0);   /* animated by JS */
-    }
-  </style>
+        .link {
+            color: inherit;
+            text-decoration-line: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 0.3em;
+            text-decoration-color: rgba(255, 255, 255, 0);
+            /* animated by JS */
+        }
+    </style>
 </head>
 
 <body>
-  <div class="cursor" id="cursor" aria-hidden="true"></div>
+    <div class="cursor" id="cursor" aria-hidden="true"></div>
 
-  <header class="hero">
-    <h1 class="title" aria-label="NICK JASPER">
-      <span class="nick" aria-hidden="true">NICK</span>
-      <span class="name" aria-hidden="true">
-        <span class="line">JAS</span>
-        <span class="line">PER</span>
-      </span>
-    </h1>
-  </header>
+    <header class="hero">
+        <h1 class="title" aria-label="NICK JASPER">
+            <span class="nick" aria-hidden="true">NICK</span>
+            <span class="name" aria-hidden="true">
+                <span class="line">JAS</span>
+                <span class="line">PER</span>
+            </span>
+        </h1>
+    </header>
 
-  <main>
-    <section class="discography" aria-label="Discography">
-      <div class="grid">
-        <!-- Copy/paste one <a> per album. Change href, img src and title. -->
-        <a class="album" data-fade="card" href="https://www.youtube.com/watch?v=95Vt00onysI&list=PLJrzrdM2WSXKXzhorP7A3yFC8lXLPzHgE" target="_blank" rel="noopener">
-          <div class="cover"><img src="covers/cow.png" alt="" draggable="false"></div>
-          <p class="album-title">The cow that jumped over the moon and killed the rat</p>
-        </a>
+    <main>
+        <section class="discography" aria-label="Discography">
+            <div class="grid">
+                <!-- Copy/paste one <a> per album. Change href, img src and title. -->
+                <a class="album" data-fade="card"
+                    href="https://www.youtube.com/watch?v=95Vt00onysI&list=PLJrzrdM2WSXKXzhorP7A3yFC8lXLPzHgE"
+                    target="_blank" rel="noopener">
+                    <div class="cover"><img src="covers/cow.png" alt="" draggable="false"></div>
+                    <p class="album-title">The cow that jumped over the moon and killed the rat</p>
+                </a>
 
-        <a class="album" data-fade="card" href="https://www.youtube.com/watch?v=JaP1nz73gEE&list=PLEWeFT0ctV_Y" target="_blank" rel="noopener">
-          <div class="cover"><img src="covers/indev.png" alt="" draggable="false"></div>
-          <p class="album-title">Arrel Original Indev Sountrack</p>
-        </a>
+                <a class="album" data-fade="card" href="https://www.youtube.com/watch?v=JaP1nz73gEE&list=PLEWeFT0ctV_Y"
+                    target="_blank" rel="noopener">
+                    <div class="cover"><img src="covers/indev.png" alt="" draggable="false"></div>
+                    <p class="album-title">Arrel Original Indev Sountrack</p>
+                </a>
 
-        <a class="album" data-fade="card" href="https://www.youtube.com/watch?v=jyHPsgV9p6w&list=PLJrzrdM2WSXJ7EXILNpxLMrXTTR95toSh" target="_blank" rel="noopener">
-          <div class="cover"><img src="covers/interlude.png" alt="" draggable="false"></div>
-          <p class="album-title">.&nbsp;&nbsp;I И T E R L U D E&nbsp;&nbsp;.</p>
-        </a>
-      </div>
-    </section>
-  </main>
+                <a class="album" data-fade="card"
+                    href="https://www.youtube.com/watch?v=jyHPsgV9p6w&list=PLJrzrdM2WSXJ7EXILNpxLMrXTTR95toSh"
+                    target="_blank" rel="noopener">
+                    <div class="cover"><img src="covers/interlude.png" alt="" draggable="false"></div>
+                    <p class="album-title">.&nbsp;&nbsp;I И T E R L U D E&nbsp;&nbsp;.</p>
+                </a>
+            </div>
+        </section>
+    </main>
 
-  <footer class="links">
-    <a class="link" data-fade="link" href="https://www.youtube.com/@NickJasper" target="_blank" rel="noopener">YOUTUBE</a>
-    <a class="link" data-fade="link" href="https://x.com/NickJasperr" target="_blank" rel="noopener">TWITTER</a>
-    <a class="link" data-fade="link" href="https://instagram.com/nickjasperr" target="_blank" rel="noopener">INSTAGRAM</a>
-  </footer>
+    <footer class="links">
+        <a class="link" data-fade="link" href="https://www.youtube.com/@NickJasper" target="_blank"
+            rel="noopener">YOUTUBE</a>
+        <a class="link" data-fade="link" href="https://x.com/NickJasperr" target="_blank" rel="noopener">TWITTER</a>
+        <a class="link" data-fade="link" href="https://instagram.com/nickjasperr" target="_blank"
+            rel="noopener">INSTAGRAM</a>
+    </footer>
 
-  <!-- Lenis (pinned version). Site still works with native scrolling if this fails to load. -->
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+    <!-- Lenis (pinned version). Site still works with native scrolling if this fails to load. -->
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 
-  <script>
-  (() => {
-    'use strict';
+    <script>
+        (() => {
+            'use strict';
 
-    /* ================================================================
-       CONFIG: everything you'll want to tweak lives here
-    ================================================================ */
+            /* ================================================================
+               CONFIG: everything you'll want to tweak lives here
+            ================================================================ */
 
-    // Lenis smooth scroll. Lower lerp = floatier/slower.
-    // Lower wheelMultiplier = heavier scrolling (0.5 = half the distance per wheel tick).
-    const LENIS = {
-      lerp: 0.1,
-      wheelMultiplier: 0.5,
-      smoothWheel: true,
-    };
+            // Lenis smooth scroll. Lower lerp = floatier/slower.
+            // Lower wheelMultiplier = heavier scrolling (0.5 = half the distance per wheel tick).
+            const LENIS = {
+                lerp: 0.1,
+                wheelMultiplier: 0.5,
+                smoothWheel: true,
+            };
 
-    // Cursor circle. Radii are in px.
-    const CURSOR = {
-      radius: 12,         // normal
-      hoverRadius: 18,    // over something clickable
-      pressRadius: 8,     // while mouse button is held (smaller than normal)
-      thickness: 2,       // ring outline thickness in px
-      lerp: {
-        multiplierPlus: 18,   // speed when growing  (per second)
-        multiplierMinus: 18,  // speed when shrinking (per second)
-        minDistance: 0.05,    // stop updating when this close to the target
-        maxSpeed: 600,        // max change per second (px/s)
-      },
-    };
+            // Cursor circle. Radii are in px.
+            const CURSOR = {
+                radius: 12,         // normal
+                hoverRadius: 18,    // over something clickable
+                pressRadius: 8,     // while mouse button is held (smaller than normal)
+                thickness: 2,       // ring outline thickness in px
+                lerp: {
+                    multiplierPlus: 18,   // speed when growing  (per second)
+                    multiplierMinus: 18,  // speed when shrinking (per second)
+                    minDistance: 0.05,    // stop updating when this close to the target
+                    maxSpeed: 600,        // max change per second (px/s)
+                },
+            };
 
-    // Album box background fade. alpha 0.1 = 10% white.
-    const CARD_FADE = {
-      alpha: 0.1,
-      lerp: {
-        multiplierPlus: 12,
-        multiplierMinus: 8,
-        minDistance: 0.0005,
-        maxSpeed: 2,          // alpha units per second
-      },
-    };
+            // Album box background fade. alpha 0.1 = 10% white.
+            const CARD_FADE = {
+                alpha: 0.1,
+                lerp: {
+                    multiplierPlus: 12,
+                    multiplierMinus: 8,
+                    minDistance: 0.0005,
+                    maxSpeed: 2,          // alpha units per second
+                },
+            };
 
-    // Link underline fade. alpha 1 = fully visible underline.
-    const LINK_FADE = {
-      alpha: 1,
-      lerp: {
-        multiplierPlus: 14,
-        multiplierMinus: 10,
-        minDistance: 0.002,
-        maxSpeed: 10,         // alpha units per second
-      },
-    };
+            // Link underline fade. alpha 1 = fully visible underline.
+            const LINK_FADE = {
+                alpha: 1,
+                lerp: {
+                    multiplierPlus: 14,
+                    multiplierMinus: 10,
+                    minDistance: 0.002,
+                    maxSpeed: 10,         // alpha units per second
+                },
+            };
 
-    /* ================================================================
-       LERP: JS port of ULebbexFunctionsBPLibrary::UpdateLerpSmoothExcluded
-       Returns { value, moved }  (value = "New", moved = "Moved")
-    ================================================================ */
-    const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+            /* ================================================================
+               LERP: JS port of ULebbexFunctionsBPLibrary::UpdateLerpSmoothExcluded
+               Returns { value, moved }  (value = "New", moved = "Moved")
+            ================================================================ */
+            const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
-    function updateLerpSmoothExcluded(desired, current, multiplierPlus, multiplierMinus, deltaTime, minDistance, maxSpeed) {
-      if (Math.abs(desired - current) < minDistance) {
-        return { value: current, moved: false };
-      }
-      const multiplier = (current < desired ? multiplierPlus : multiplierMinus) * deltaTime;
-      const maxSpeedClean = maxSpeed * deltaTime;
-      const lerped = current + (desired - current) * clamp(multiplier, 0, 1);
-      return {
-        value: clamp(lerped, current - maxSpeedClean, current + maxSpeedClean),
-        moved: true,
-      };
-    }
+            function updateLerpSmoothExcluded(desired, current, multiplierPlus, multiplierMinus, deltaTime, minDistance, maxSpeed) {
+                if (Math.abs(desired - current) < minDistance) {
+                    return { value: current, moved: false };
+                }
+                const multiplier = (current < desired ? multiplierPlus : multiplierMinus) * deltaTime;
+                const maxSpeedClean = maxSpeed * deltaTime;
+                const lerped = current + (desired - current) * clamp(multiplier, 0, 1);
+                return {
+                    value: clamp(lerped, current - maxSpeedClean, current + maxSpeedClean),
+                    moved: true,
+                };
+            }
 
-    const stepWith = (cfg, desired, current, dt) =>
-      updateLerpSmoothExcluded(desired, current, cfg.multiplierPlus, cfg.multiplierMinus, dt, cfg.minDistance, cfg.maxSpeed);
+            const stepWith = (cfg, desired, current, dt) =>
+                updateLerpSmoothExcluded(desired, current, cfg.multiplierPlus, cfg.multiplierMinus, dt, cfg.minDistance, cfg.maxSpeed);
 
-    /* ================================================================
-       LENIS
-    ================================================================ */
-    let lenis = null;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (window.Lenis && !reduceMotion) {
-      lenis = new Lenis(LENIS);
-    }
+            /* ================================================================
+               LENIS
+            ================================================================ */
+            let lenis = null;
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (window.Lenis && !reduceMotion) {
+                lenis = new Lenis(LENIS);
+            }
 
-    /* ================================================================
-       CURSOR STATE
-    ================================================================ */
-    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const cursorEl = document.getElementById('cursor');
+            /* ================================================================
+               CURSOR STATE
+            ================================================================ */
+            const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            const cursorEl = document.getElementById('cursor');
 
-    cursorEl.style.setProperty('--ring', CURSOR.thickness + 'px');
+            cursorEl.style.setProperty('--ring', CURSOR.thickness + 'px');
 
-    let mouseX = -9999, mouseY = -9999;
-    let radius = CURSOR.radius;
-    let pressed = false;
-    let visible = false;
-    let hovered = null;       // the clickable element under the cursor
-    let hoverDirty = false;   // re-check what's under the cursor on the next frame
+            let mouseX = -9999, mouseY = -9999;
+            let radius = CURSOR.radius;
+            let pressed = false;
+            let visible = false;
+            let hovered = null;       // the clickable element under the cursor
+            let hoverDirty = false;   // re-check what's under the cursor on the next frame
 
-    function renderCursor() {
-      const r = Math.max(radius, CURSOR.thickness);
-      cursorEl.style.width = cursorEl.style.height = (r * 2) + 'px';
-      cursorEl.style.transform = `translate3d(${mouseX - r}px, ${mouseY - r}px, 0)`;
-    }
+            function renderCursor() {
+                const r = Math.max(radius, CURSOR.thickness);
+                cursorEl.style.width = cursorEl.style.height = (r * 2) + 'px';
+                cursorEl.style.transform = `translate3d(${mouseX - r}px, ${mouseY - r}px, 0)`;
+            }
 
-    function setVisible(v) {
-      visible = v;
-      cursorEl.classList.toggle('on', v);
-    }
+            function setVisible(v) {
+                visible = v;
+                cursorEl.classList.toggle('on', v);
+            }
 
-    function updateHover() {
-      const el = document.elementFromPoint(mouseX, mouseY);
-      hovered = el ? el.closest('a, button, [data-clickable]') : null;
-    }
+            function updateHover() {
+                const el = document.elementFromPoint(mouseX, mouseY);
+                hovered = el ? el.closest('a, button, [data-clickable]') : null;
+            }
 
-    if (finePointer) {
-      renderCursor();
+            if (finePointer) {
+                renderCursor();
 
-      // Position is written straight inside the event handler: no smoothing, no rAF wait.
-      window.addEventListener('pointermove', (e) => {
-        if (e.pointerType === 'touch') return;
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        if (!visible) setVisible(true);
-        renderCursor();
-        hoverDirty = true;
-      }, { passive: true });
+                // Position is written straight inside the event handler: no smoothing, no rAF wait.
+                window.addEventListener('pointermove', (e) => {
+                    if (e.pointerType === 'touch') return;
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    if (!visible) setVisible(true);
+                    renderCursor();
+                    hoverDirty = true;
+                }, { passive: true });
 
-      window.addEventListener('pointerdown', (e) => {
-        if (e.pointerType === 'touch') return;
-        pressed = true;
-      }, { passive: true });
+                window.addEventListener('pointerdown', (e) => {
+                    if (e.pointerType === 'touch') return;
+                    pressed = true;
+                }, { passive: true });
 
-      const release = () => { pressed = false; };
-      window.addEventListener('pointerup', release, { passive: true });
-      window.addEventListener('pointercancel', release, { passive: true });
-      window.addEventListener('blur', release);
+                const release = () => { pressed = false; };
+                window.addEventListener('pointerup', release, { passive: true });
+                window.addEventListener('pointercancel', release, { passive: true });
+                window.addEventListener('blur', release);
 
-      document.documentElement.addEventListener('mouseleave', () => {
-        setVisible(false);
-        pressed = false;
-        hovered = null;
-      });
-      document.documentElement.addEventListener('mouseenter', () => {
-        if (mouseX > -9000) setVisible(true);
-      });
-    }
+                document.documentElement.addEventListener('mouseleave', () => {
+                    setVisible(false);
+                    pressed = false;
+                    hovered = null;
+                });
+                document.documentElement.addEventListener('mouseenter', () => {
+                    if (mouseX > -9000) setVisible(true);
+                });
+            }
 
-    /* ================================================================
-       FADE ITEMS (album boxes + links)
-    ================================================================ */
-    const fadeItems = Array.from(document.querySelectorAll('[data-fade]')).map((el) => {
-      const isCard = el.dataset.fade === 'card';
-      return {
-        el,
-        cfg: isCard ? CARD_FADE : LINK_FADE,
-        prop: isCard ? 'backgroundColor' : 'textDecorationColor',
-        current: 0,
-      };
-    });
+            /* ================================================================
+               FADE ITEMS (album boxes + links)
+            ================================================================ */
+            const fadeItems = Array.from(document.querySelectorAll('[data-fade]')).map((el) => {
+                const isCard = el.dataset.fade === 'card';
+                return {
+                    el,
+                    cfg: isCard ? CARD_FADE : LINK_FADE,
+                    prop: isCard ? 'backgroundColor' : 'textDecorationColor',
+                    current: 0,
+                };
+            });
 
-    /* ================================================================
-       MAIN LOOP
-    ================================================================ */
-    if (lenis) lenis.on('scroll', () => { hoverDirty = true; });
+            /* ================================================================
+               MAIN LOOP
+            ================================================================ */
+            if (lenis) lenis.on('scroll', () => { hoverDirty = true; });
 
-    let last = 0;
-    function tick(now) {
-      const dt = last ? Math.min((now - last) / 1000, 0.1) : 1 / 60;
-      last = now;
+            let last = 0;
+            function tick(now) {
+                const dt = last ? Math.min((now - last) / 1000, 0.1) : 1 / 60;
+                last = now;
 
-      if (lenis) lenis.raf(now);
+                if (lenis) lenis.raf(now);
 
-      if (hoverDirty && visible) {
-        hoverDirty = false;
-        updateHover();
-      }
+                if (hoverDirty && visible) {
+                    hoverDirty = false;
+                    updateHover();
+                }
 
-      // cursor radius
-      if (finePointer) {
-        const desired = pressed ? CURSOR.pressRadius
-                      : hovered ? CURSOR.hoverRadius
-                      : CURSOR.radius;
-        const r = stepWith(CURSOR.lerp, desired, radius, dt);
-        if (r.moved) {
-          radius = r.value;
-          renderCursor();
-        }
-      }
+                // cursor radius
+                if (finePointer) {
+                    const desired = pressed ? CURSOR.pressRadius
+                        : hovered ? CURSOR.hoverRadius
+                            : CURSOR.radius;
+                    const r = stepWith(CURSOR.lerp, desired, radius, dt);
+                    if (r.moved) {
+                        radius = r.value;
+                        renderCursor();
+                    }
+                }
 
-      // album box backgrounds + link underlines
-      for (const item of fadeItems) {
-        const desired = item.el === hovered ? item.cfg.alpha : 0;
-        const r = stepWith(item.cfg.lerp, desired, item.current, dt);
-        if (r.moved) {
-          item.current = r.value;
-          item.el.style[item.prop] = `rgba(255, 255, 255, ${item.current})`;
-        }
-      }
+                // album box backgrounds + link underlines
+                for (const item of fadeItems) {
+                    const desired = item.el === hovered ? item.cfg.alpha : 0;
+                    const r = stepWith(item.cfg.lerp, desired, item.current, dt);
+                    if (r.moved) {
+                        item.current = r.value;
+                        item.el.style[item.prop] = `rgba(255, 255, 255, ${item.current})`;
+                    }
+                }
 
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  })();
-  </script>
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        })();
+    </script>
 </body>
+
 </html>
