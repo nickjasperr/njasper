@@ -1,0 +1,483 @@
+/* ------------------------------------------------------------------
+   FONT (self-hosted)
+------------------------------------------------------------------ */
+@font-face {
+    font-family: "Space Mono";
+    src: url("fonts/SpaceMono-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
+
+/* ------------------------------------------------------------------
+   TWEAKABLE LAYOUT VALUES
+------------------------------------------------------------------ */
+:root {
+    --bg: #000;
+    --fg: #fff;
+
+    /* "large" viewport height so things don't jump when mobile toolbars show/hide */
+    --vh: 1vh;
+
+    --pad: clamp(1rem, 3vw, 2.5rem);                /* page side padding */
+
+    /* ---- title ---- */
+    --char-w: 0.612;                                /* Space Mono glyph width in em */
+    --title-lh: 0.8;                                /* line height of the big text, lower = tighter */
+    --title-gap: 0.08;                              /* base gap between NICK and JASPER, in em */
+    --title-top: 50%;                               /* vertical position of the title's centre */
+
+    --title-min-w: 33.3333vw;                       /* title is never narrower than this... */
+    --title-max-w: 50vw;                            /* ...or wider than this */
+    --title-min-h: calc(20 * var(--vh));            /* if shorter than this it grows (up to max-w) */
+    --title-max-h: calc(33.3333 * var(--vh));       /* never taller than this (wins over min-w) */
+
+    /* ---- NICK fine tuning (all relative to the title's font size) ---- */
+    --nick-y: 0.04;                                 /* push NICK down (+) or up (-). Tweak me first. */
+    --nick-size: 0.98;                                 /* 1 = exactly as long as JASPER is tall. 1.02 = 2% longer */
+    --nick-gap: -0.01;                                  /* extra space between NICK and JASPER, in em */
+    --line-gap: 0.03;                                /* extra space between JAS and PER, in em */
+
+    /* ---- discography ---- */
+    --cover-w: 250px;                               /* album cover width, never changes with screen size */
+    --card-pad: 12px;                               /* padding inside an album box */
+    --card-w: calc(var(--cover-w) + 2 * var(--card-pad));  /* width of one album box */
+    --aa-blur: 0.75px;                              /* edge softening on the big title + category titles (0 = off) */
+    --card-gap: 20px;                               /* space between album boxes (horizontal and vertical) */
+    --edge: 10px;                                   /* fade-out width at the left/right of a list, also the padding so the first/last album sit clear of it */
+    --cat-size: 1.25rem;                            /* category title font size in the stacked layout (side layout is auto-fitted by JS) */
+    --cat-gap: 5px;                                 /* space between category title and its list (side layout), 0 = glued */
+    --cat-spacing: 150px;                           /* space between categories (static) */
+    --arrow-w: 4.5rem;                              /* < > button size */
+    --arrow-h: 7rem;
+
+    /* width needed for the side layout minus the title column (2 albums + arrows) (JS adds the title's width). Measured via .side-probe */
+    --side-min: calc(2 * var(--card-w) + var(--card-gap) + 2 * var(--edge) + var(--cat-gap) + var(--arrow-w));
+}
+
+@supports (height: 1lvh) {
+    :root {
+        --vh: 1lvh;
+    }
+}
+
+/* ------------------------------------------------------------------
+   BASE
+------------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    background: var(--bg);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Space Mono", monospace;
+    font-weight: 400;
+    font-synthesis: none;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: geometricPrecision;
+}
+
+h1,
+h2,
+p,
+ol {
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Lenis required styles */
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+    overflow: clip;
+}
+
+:focus-visible {
+    outline: 1px solid var(--fg);
+    outline-offset: 4px;
+}
+
+/* Native drag ghosts are blocked in the script (dragstart on a/img/button).
+   Everything else on the page stays selectable/draggable. */
+a,
+img,
+button {
+    -webkit-user-drag: none;
+}
+
+/* ------------------------------------------------------------------
+   CUSTOM CURSOR
+   White ring (outline only). backdrop-filter turns every pixel
+   behind it to greyscale, thresholds at 50% brightness, then
+   inverts it: dark pixels behind -> white, bright -> black.
+   The mask cuts out the middle so only the outline is visible.
+   Ring thickness is set from CURSOR.thickness in the script.
+------------------------------------------------------------------ */
+.cursor {
+    --ring: 2px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2147483647;
+    border-radius: 50%;
+    pointer-events: none;
+    visibility: hidden;
+    will-change: transform;
+    /* fallback (no SVG filter support in backdrop-filter): plain threshold + invert */
+    -webkit-backdrop-filter: grayscale(1) contrast(255) invert(1);
+    backdrop-filter: grayscale(1) contrast(255) invert(1);
+    /* preferred (Chrome/Edge): threshold + 1px dilation + invert, see #cursor-filter in index.html */
+    backdrop-filter: url(#cursor-filter);
+    /* ring with ~1px soft edges on both sides = anti-aliased circle */
+    -webkit-mask: radial-gradient(circle closest-side,
+            transparent calc(100% - var(--ring) - 0.5px),
+            #000 calc(100% - var(--ring) + 0.5px),
+            #000 calc(100% - 0.5px),
+            transparent calc(100% + 0.5px));
+    mask: radial-gradient(circle closest-side,
+            transparent calc(100% - var(--ring) - 0.5px),
+            #000 calc(100% - var(--ring) + 0.5px),
+            #000 calc(100% - 0.5px),
+            transparent calc(100% + 0.5px));
+}
+
+.cursor.on {
+    visibility: visible;
+}
+
+@media (hover: hover) and (pointer: fine) {
+
+    html,
+    html * {
+        cursor: none !important;
+    }
+}
+
+@media (hover: none),
+(pointer: coarse) {
+    .cursor {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+   TITLE
+   Width is clamped to [1/3 .. 1/2] of the page width, grows to reach
+   1/5 of the page height when it can, and is capped at 1/3 of the
+   page height.
+------------------------------------------------------------------ */
+.hero {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+@supports (height: 100lvh) {
+    .hero {
+        height: 100lvh;
+    }
+}
+
+.title {
+    --block-h: calc(var(--title-lh) * 2 + var(--line-gap));                                /* two lines + the gap between them, in em */                                           /* two lines tall, in em */
+    --nick-scale: calc(var(--block-h) / (4 * var(--char-w)) * var(--nick-size));           /* NICK is as long as the block is tall */
+    --nick-col: calc(var(--title-lh) * var(--nick-scale));
+    --total-w: calc(3 * var(--char-w) + var(--title-gap) + var(--nick-gap) + var(--nick-col));
+    --aspect: calc(var(--block-h) / var(--total-w));                                       /* block height / block width */
+
+    --title-width: min(
+            clamp(var(--title-min-w), calc(var(--title-min-h) / var(--aspect)), var(--title-max-w)),
+            calc(var(--title-max-h) / var(--aspect))
+        );
+
+    position: absolute;
+    left: 50%;
+    top: var(--title-top);
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+    gap: 0;
+    line-height: var(--title-lh);
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    filter: blur(var(--aa-blur));
+    font-size: calc(var(--title-width) / var(--total-w));
+}
+
+.nick {
+    font-size: calc(var(--nick-scale) * 1em);
+    writing-mode: vertical-rl;
+    rotate: 180deg;                                                  /* reads bottom to top */
+    translate: 0 calc(var(--nick-y) * 1em / var(--nick-scale));      /* + = down, in title em */
+    margin-right: calc((var(--title-gap) + var(--nick-gap)) * 1em / var(--nick-scale));
+}
+
+.line {
+    display: block;
+}
+
+.line + .line {
+    margin-top: calc(var(--line-gap) * 1em);
+}
+
+/* portrait screens (phones): title sits a bit above centre */
+@media (max-aspect-ratio: 1/1) {
+    :root {
+        --title-top: 45%;
+    }
+}
+
+/* ------------------------------------------------------------------
+   DISCOGRAPHY
+   Layout is switched by the script (data-layout on .discography):
+     side  = category title rotated on the left, one row of albums
+     stack = category title above, albums in 2 rows
+   Both are horizontally scrollable lists. All categories always share
+   the same layout.
+------------------------------------------------------------------ */
+.discography {
+    padding: var(--pad);
+}
+
+.side-probe {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--side-min);
+    height: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.category+.category {
+    margin-top: var(--cat-spacing);
+}
+
+.cat-title {
+    font-size: var(--cat-size);
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    margin-bottom: 0.5rem;
+    padding: 0;
+    text-align: center;        /* stacked layout: JS sizes the title to span the full width */
+    filter: blur(var(--aa-blur));
+}
+
+.carousel {
+    position: relative;
+    min-width: 0;
+}
+
+.scroller {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* fade the left/right edges (same as a black gradient on top, but simpler) */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--edge), #000 calc(100% - var(--edge)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--edge), #000 calc(100% - var(--edge)), transparent 100%);
+}
+
+.scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--card-w);
+    grid-template-rows: repeat(2, auto);
+    column-gap: var(--card-gap);
+    row-gap: var(--card-gap);
+    width: max-content;
+    padding-inline: var(--edge);   /* keeps the first/last album out of the fade */
+    margin-inline: auto;           /* few albums: centred. many albums: auto margins collapse to 0 and it scrolls */
+}
+
+[data-layout="side"] .category {
+    display: grid;
+    grid-template-columns: auto minmax(0, max-content);   /* title column = (JS-fitted) title, list column = as wide as its albums (or less if the screen is narrower) */
+    justify-content: center;                              /* whole category centred horizontally */
+    column-gap: var(--cat-gap);
+    align-items: center;
+}
+
+[data-layout="side"] .cat-title {
+    margin: 0;
+    padding: 0;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+}
+
+[data-layout="side"] .track {
+    grid-template-rows: auto;
+}
+
+.album {
+    display: block;
+    padding: var(--card-pad);
+    color: inherit;
+    text-decoration: none;
+    background-color: rgba(255, 255, 255, 0);
+    /* resting 0%, animated to 5% on hover by JS (CARD_FADE) */
+}
+
+.cover {
+    width: var(--cover-w);
+    aspect-ratio: 1 / 1;
+    background: #141414;
+    /* placeholder until the image loads */
+    overflow: hidden;
+}
+
+.cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.album-title {
+    text-align: center;
+    margin-top: 0.6rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+/* < > buttons: beside the list in the side layout, underneath it in the stacked layout.
+   50% opacity, 100% on hover, invisible when there is nothing to scroll to. */
+[data-layout="side"] .carousel {
+    display: grid;
+    grid-template-columns: minmax(0, max-content) var(--arrow-w);
+    align-items: center;
+}
+
+[data-layout="side"] .scroller {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+
+[data-layout="side"] .arrow-prev {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+}
+
+[data-layout="side"] .arrow-next {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+}
+
+[data-layout="stack"] .carousel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+[data-layout="stack"] .scroller {
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+[data-layout="stack"] .arrow-prev {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: end;
+}
+
+[data-layout="stack"] .arrow-next {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+}
+
+/* nothing to scroll: no empty row under the list */
+[data-layout="stack"] .carousel.no-scroll .arrow {
+    display: none;
+}
+
+.arrow {
+    width: var(--arrow-w);
+    height: var(--arrow-h);
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 3rem;
+    line-height: 1;
+    opacity: 0.5;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity 0.2s;
+}
+
+.arrow:hover:not(:disabled) {
+    opacity: 1;
+}
+
+.arrow:disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ------------------------------------------------------------------
+   FOOTER LINKS
+------------------------------------------------------------------ */
+.links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    gap: 0.5rem 2rem;
+    padding: calc(var(--pad) * 2) var(--pad);
+    padding-bottom: calc(var(--pad) * 2 + env(safe-area-inset-bottom, 0px));
+}
+
+.link {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+    text-decoration-color: rgba(255, 255, 255, 0);
+    /* animated by JS */
+}
