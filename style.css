@@ -55,6 +55,12 @@
     --side-min: calc(2 * var(--card-w) + var(--card-gap) + 2 * var(--edge) + var(--cat-gap) + var(--arrow-w));
 }
 
+@media (hover: none) and (pointer: coarse) {
+    :root {
+        --aa-blur: 0px;
+    }
+}
+
 @supports (height: 1lvh) {
     :root {
         --vh: 1lvh;
@@ -294,6 +300,7 @@ button {
     text-align: center;        /* stacked layout: JS sizes the title to span the full width */
     filter: blur(var(--aa-blur));
 }
+
 
 .carousel {
     position: relative;
