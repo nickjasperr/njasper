@@ -80,7 +80,8 @@ html {
     background: var(--bg);
     scrollbar-width: none;
     -ms-overflow-style: none;
-    overscroll-behavior: none;
+    overscroll-behavior-x: none;
+    overscroll-behavior-y: auto;
     -webkit-tap-highlight-color: transparent;
 }
 

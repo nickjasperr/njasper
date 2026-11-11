@@ -16,7 +16,7 @@
     // Album lists (horizontal Lenis instances + < > buttons)
     const CAROUSEL = {
         lerp: 0.1,
-        syncTouch: true,      // Lenis-smoothed finger scrolling on touch screens (set false for plain native touch scrolling)
+        syncTouch: false,
     };
 
     // Cursor circle. Radii are in px.
