@@ -21,9 +21,9 @@
 
     // Cursor circle. Radii are in px.
     const CURSOR = {
-        radius: 12,         // normal
-        hoverRadius: 18,    // over something clickable
-        pressRadius: 8,     // while mouse button is held (smaller than normal)
+        radius: 8,         // normal
+        hoverRadius: 16,    // over something clickable
+        pressRadius: 12,     // while mouse button is held (smaller than normal)
         thickness: 2,       // ring outline thickness in px
         lerp: {
             multiplierPlus: 18,   // speed when growing  (per second)
@@ -183,6 +183,12 @@
             albums: Array.from(section.querySelectorAll('.album')),
         };
     });
+
+    // Stacked layout shows 2 rows only for exactly 2 albums or 6+; 3-5 stay in 1 row.
+    for (const c of catItems) {
+        const n = c.albums.length;
+        c.title.closest('.category').classList.toggle('two-rows', n === 2 || n >= 6);
+    }
 
     // Height one album box has in a single-row list (same in both layouts: width is fixed)
     function albumHeight(album) {

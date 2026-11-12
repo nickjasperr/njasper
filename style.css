@@ -19,36 +19,61 @@
     /* "large" viewport height so things don't jump when mobile toolbars show/hide */
     --vh: 1vh;
 
-    --pad: clamp(1rem, 3vw, 2.5rem);                /* page side padding */
+    --pad: clamp(1rem, 3vw, 2.5rem);
+    /* page side padding */
+
+    --cursor-blur: 1px;
 
     /* ---- title ---- */
-    --char-w: 0.612;                                /* Space Mono glyph width in em */
-    --title-lh: 0.8;                                /* line height of the big text, lower = tighter */
-    --title-gap: 0.08;                              /* base gap between NICK and JASPER, in em */
-    --title-top: 50%;                               /* vertical position of the title's centre */
+    --char-w: 0.612;
+    /* Space Mono glyph width in em */
+    --title-lh: 0.8;
+    /* line height of the big text, lower = tighter */
+    --title-gap: 0.08;
+    /* base gap between NICK and JASPER, in em */
+    --title-top: 50%;
+    /* vertical position of the title's centre */
 
-    --title-min-w: 33.3333vw;                       /* title is never narrower than this... */
-    --title-max-w: 50vw;                            /* ...or wider than this */
-    --title-min-h: calc(20 * var(--vh));            /* if shorter than this it grows (up to max-w) */
-    --title-max-h: calc(33.3333 * var(--vh));       /* never taller than this (wins over min-w) */
+    --title-min-w: 33.3333vw;
+    /* title is never narrower than this... */
+    --title-max-w: 50vw;
+    /* ...or wider than this */
+    --title-min-h: calc(20 * var(--vh));
+    /* if shorter than this it grows (up to max-w) */
+    --title-max-h: calc(33.3333 * var(--vh));
+    /* never taller than this (wins over min-w) */
 
     /* ---- NICK fine tuning (all relative to the title's font size) ---- */
-    --nick-y: 0.04;                                 /* push NICK down (+) or up (-). Tweak me first. */
-    --nick-size: 0.98;                                 /* 1 = exactly as long as JASPER is tall. 1.02 = 2% longer */
-    --nick-gap: -0.01;                                  /* extra space between NICK and JASPER, in em */
-    --line-gap: 0.03;                                /* extra space between JAS and PER, in em */
+    --nick-y: 0.04;
+    /* push NICK down (+) or up (-). Tweak me first. */
+    --nick-size: 0.98;
+    /* 1 = exactly as long as JASPER is tall. 1.02 = 2% longer */
+    --nick-gap: -0.01;
+    /* extra space between NICK and JASPER, in em */
+    --line-gap: 0.03;
+    /* extra space between JAS and PER, in em */
 
     /* ---- discography ---- */
-    --cover-w: 250px;                               /* album cover width, never changes with screen size */
-    --card-pad: 12px;                               /* padding inside an album box */
-    --card-w: calc(var(--cover-w) + 2 * var(--card-pad));  /* width of one album box */
-    --aa-blur: 0.75px;                              /* edge softening on the big title + category titles (0 = off) */
-    --card-gap: 20px;                               /* space between album boxes (horizontal and vertical) */
-    --edge: 10px;                                   /* fade-out width at the left/right of a list, also the padding so the first/last album sit clear of it */
-    --cat-size: 1.25rem;                            /* category title font size in the stacked layout (side layout is auto-fitted by JS) */
-    --cat-gap: 5px;                                 /* space between category title and its list (side layout), 0 = glued */
-    --cat-spacing: 150px;                           /* space between categories (static) */
-    --arrow-w: 4.5rem;                              /* < > button size */
+    --cover-w: 250px;
+    /* album cover width, never changes with screen size */
+    --card-pad: 12px;
+    /* padding inside an album box */
+    --card-w: calc(var(--cover-w) + 2 * var(--card-pad));
+    /* width of one album box */
+    --aa-blur: 0.75px;
+    /* edge softening on the big title + category titles (0 = off) */
+    --card-gap: 20px;
+    /* space between album boxes (horizontal and vertical) */
+    --edge: 10px;
+    /* fade-out width at the left/right of a list, also the padding so the first/last album sit clear of it */
+    --cat-size: 1.25rem;
+    /* category title font size in the stacked layout (side layout is auto-fitted by JS) */
+    --cat-gap: 5px;
+    /* space between category title and its list (side layout), 0 = glued */
+    --cat-spacing: 150px;
+    /* space between categories (static) */
+    --arrow-w: 4.5rem;
+    /* < > button size */
     --arrow-h: 7rem;
 
     /* width needed for the side layout minus the title column (2 albums + arrows) (JS adds the title's width). Measured via .side-probe */
@@ -164,16 +189,17 @@ button {
     /* preferred (Chrome/Edge): threshold + 1px dilation + invert, see #cursor-filter in index.html */
     backdrop-filter: url(#cursor-filter);
     /* ring with ~1px soft edges on both sides = anti-aliased circle */
-    -webkit-mask: radial-gradient(circle closest-side,
-            transparent calc(100% - var(--ring) - 0.5px),
-            #000 calc(100% - var(--ring) + 0.5px),
-            #000 calc(100% - 0.5px),
-            transparent calc(100% + 0.5px));
-    mask: radial-gradient(circle closest-side,
-            transparent calc(100% - var(--ring) - 0.5px),
-            #000 calc(100% - var(--ring) + 0.5px),
-            #000 calc(100% - 0.5px),
-            transparent calc(100% + 0.5px));
+    -webkit-mask: radial-gradient(circle farthest-side,
+            transparent calc(100% - var(--ring) - 2 * var(--cursor-blur)),
+            #000 calc(100% - var(--ring)),
+            #000 calc(100% - 2 * var(--cursor-blur)),
+            transparent 100%);
+
+    mask: radial-gradient(circle farthest-side,
+            transparent calc(100% - var(--ring) - 2 * var(--cursor-blur)),
+            #000 calc(100% - var(--ring)),
+            #000 calc(100% - 2 * var(--cursor-blur)),
+            transparent 100%);
 }
 
 .cursor.on {
@@ -214,16 +240,18 @@ button {
 }
 
 .title {
-    --block-h: calc(var(--title-lh) * 2 + var(--line-gap));                                /* two lines + the gap between them, in em */                                           /* two lines tall, in em */
-    --nick-scale: calc(var(--block-h) / (4 * var(--char-w)) * var(--nick-size));           /* NICK is as long as the block is tall */
+    --block-h: calc(var(--title-lh) * 2 + var(--line-gap));
+    /* two lines + the gap between them, in em */
+    /* two lines tall, in em */
+    --nick-scale: calc(var(--block-h) / (4 * var(--char-w)) * var(--nick-size));
+    /* NICK is as long as the block is tall */
     --nick-col: calc(var(--title-lh) * var(--nick-scale));
     --total-w: calc(3 * var(--char-w) + var(--title-gap) + var(--nick-gap) + var(--nick-col));
-    --aspect: calc(var(--block-h) / var(--total-w));                                       /* block height / block width */
+    --aspect: calc(var(--block-h) / var(--total-w));
+    /* block height / block width */
 
-    --title-width: min(
-            clamp(var(--title-min-w), calc(var(--title-min-h) / var(--aspect)), var(--title-max-w)),
-            calc(var(--title-max-h) / var(--aspect))
-        );
+    --title-width: min(clamp(var(--title-min-w), calc(var(--title-min-h) / var(--aspect)), var(--title-max-w)),
+            calc(var(--title-max-h) / var(--aspect)));
 
     position: absolute;
     left: 50%;
@@ -244,8 +272,10 @@ button {
 .nick {
     font-size: calc(var(--nick-scale) * 1em);
     writing-mode: vertical-rl;
-    rotate: 180deg;                                                  /* reads bottom to top */
-    translate: 0 calc(var(--nick-y) * 1em / var(--nick-scale));      /* + = down, in title em */
+    rotate: 180deg;
+    /* reads bottom to top */
+    translate: 0 calc(var(--nick-y) * 1em / var(--nick-scale));
+    /* + = down, in title em */
     margin-right: calc((var(--title-gap) + var(--nick-gap)) * 1em / var(--nick-scale));
 }
 
@@ -253,7 +283,7 @@ button {
     display: block;
 }
 
-.line + .line {
+.line+.line {
     margin-top: calc(var(--line-gap) * 1em);
 }
 
@@ -298,7 +328,8 @@ button {
     -webkit-user-select: none;
     margin-bottom: 0.5rem;
     padding: 0;
-    text-align: center;        /* stacked layout: JS sizes the title to span the full width */
+    text-align: center;
+    /* stacked layout: JS sizes the title to span the full width */
     filter: blur(var(--aa-blur));
 }
 
@@ -323,22 +354,34 @@ button {
     display: none;
 }
 
+/* nothing to scroll to: the list isn't a scroll container at all, so touch/trackpad
+   gestures go straight to the page instead of being captured by it */
+.carousel.no-scroll .scroller {
+    overflow: hidden;
+    touch-action: pan-y;
+    overscroll-behavior: auto;
+}
+
 .track {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: var(--card-w);
-    grid-template-rows: repeat(2, auto);
+    grid-template-rows: auto;
     column-gap: var(--card-gap);
     row-gap: var(--card-gap);
     width: max-content;
-    padding-inline: var(--edge);   /* keeps the first/last album out of the fade */
-    margin-inline: auto;           /* few albums: centred. many albums: auto margins collapse to 0 and it scrolls */
+    padding-inline: var(--edge);
+    /* keeps the first/last album out of the fade */
+    margin-inline: auto;
+    /* few albums: centred. many albums: auto margins collapse to 0 and it scrolls */
 }
 
 [data-layout="side"] .category {
     display: grid;
-    grid-template-columns: auto minmax(0, max-content);   /* title column = (JS-fitted) title, list column = as wide as its albums (or less if the screen is narrower) */
-    justify-content: center;                              /* whole category centred horizontally */
+    grid-template-columns: auto minmax(0, max-content);
+    /* title column = (JS-fitted) title, list column = as wide as its albums (or less if the screen is narrower) */
+    justify-content: center;
+    /* whole category centred horizontally */
     column-gap: var(--cat-gap);
     align-items: center;
 }
@@ -350,8 +393,9 @@ button {
     rotate: 180deg;
 }
 
-[data-layout="side"] .track {
-    grid-template-rows: auto;
+/* stacked layout: 2 rows only for categories with exactly 2 albums or 6+ (class set by the script) */
+[data-layout="stack"] .category.two-rows .track {
+    grid-template-rows: repeat(2, auto);
 }
 
 .album {
