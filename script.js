@@ -91,18 +91,10 @@
     });
 
     /* ================================================================
-       NO RIGHT CLICK
-    ================================================================ */
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    /* ================================================================
        LENIS (page)
     ================================================================ */
     let lenis = null;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Touch devices keep the album lists on the browser's own scrolling (momentum, Android's
-    // stretch overscroll, etc.). Lenis is only used for the lists with a mouse.
-    const touchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
     if (window.Lenis && !reduceMotion) {
         lenis = new Lenis(LENIS);
     }
@@ -267,7 +259,7 @@
         const next = root.querySelector('[data-dir="1"]');
 
         let inner = null;
-        if (window.Lenis && !reduceMotion && !touchDevice) {
+        if (window.Lenis && !reduceMotion) {
             inner = new Lenis({
                 wrapper: scroller,
                 content: track,
@@ -308,7 +300,6 @@
 
         // Scroll by whole albums, as many as fit on screen
         let dest = null;   // where an arrow-started animation is heading (so quick repeat clicks keep paging)
-        let destTimer = 0;
         const page = (dir) => {
             const first = track.children[0];
             if (!first) return;
@@ -322,10 +313,6 @@
                 dest = target;
                 inner.scrollTo(target, { lerp: CAROUSEL.lerp, onComplete: () => { dest = null; } });
             } else {
-                // native smooth scroll; remember the target so quick repeat taps keep paging
-                dest = target;
-                clearTimeout(destTimer);
-                destTimer = setTimeout(() => { dest = null; }, 700);
                 scroller.scrollTo({ left: target, behavior: reduceMotion ? 'auto' : 'smooth' });
             }
         };
@@ -335,7 +322,6 @@
         scroller.addEventListener('scroll', update, { passive: true });
         // a finger grabbing the list cancels a pending arrow target
         scroller.addEventListener('touchstart', () => { dest = null; }, { passive: true });
-        if (!inner) scroller.addEventListener('scrollend', () => { dest = null; });
 
         const ro = new ResizeObserver(update);
         ro.observe(scroller);
