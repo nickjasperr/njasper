@@ -217,6 +217,30 @@
             }
             f.c.title.style.fontSize = px ? px + 'px' : '';
         }
+
+        // Stacked layout: when a list overflows, add spacers (as track padding) on both ends so the
+        // first and last album can be scrolled to the centre. Same group size the < > buttons page by.
+        const edge = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--edge')) || 0;
+        for (const root of document.querySelectorAll('[data-carousel]')) {
+            const track = root.querySelector('.track');
+            const scroller = root.querySelector('.scroller');
+            const first = track.children[0];
+            let pad = '';                                   // '' = back to the default (--edge)
+            if (!side && first) {
+                const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+                const step = first.offsetWidth + gap;
+                const rows = root.closest('.category').classList.contains('two-rows') ? 2 : 1;
+                const cols = Math.ceil(track.children.length / rows);
+                const W = scroller.clientWidth;
+                const plain = cols * step - gap + 2 * edge; // content width with the normal edge padding
+                if (plain > W) {
+                    const perPage = Math.max(1, Math.floor(W / step));
+                    const group = perPage * step - gap;     // width of what one page shows
+                    pad = Math.max(edge, (W - group) / 2) + 'px';
+                }
+            }
+            track.style.setProperty('--track-pad', pad);
+        }
     }
     applyLayout();
     new ResizeObserver(applyLayout).observe(categories);

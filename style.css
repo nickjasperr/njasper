@@ -370,8 +370,9 @@ button {
     column-gap: var(--card-gap);
     row-gap: var(--card-gap);
     width: max-content;
-    padding-inline: var(--edge);
-    /* keeps the first/last album out of the fade */
+    padding-inline: var(--track-pad, var(--edge));
+    /* keeps the first/last album out of the fade. In the stacked layout the script sets --track-pad
+       (only when the list overflows) so the first/last album can scroll to the centre */
     margin-inline: auto;
     /* few albums: centred. many albums: auto margins collapse to 0 and it scrolls */
 }
