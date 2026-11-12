@@ -388,4 +388,49 @@
         requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
+
+        /* ================================================================
+       PROGRESSIVE COVERS
+       64px (in the HTML) -> 256px -> full size.
+       Each upgrade is loaded + decoded off-screen first, and only swapped
+       into the <img> once it's ready, so you never see a blank or a reload.
+       A stage only starts once every image has finished the previous one.
+       If a file is missing/fails, that image just keeps its current version.
+    ================================================================ */
+    const coverImgs = Array.from(document.querySelectorAll('.cover img[data-full]'));
+
+    const variantUrl = (img, suffix) => {
+        const full = img.dataset.full;
+        return suffix ? full.replace(/\.(\w+)$/, suffix + '.$1') : full;
+    };
+
+    // Resolves once an <img> already on the page has loaded (or failed)
+    const imgSettled = (img) => new Promise((resolve) => {
+        if (img.complete) return resolve();
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+    });
+
+    // Loads a URL in the background and resolves true when it's loaded and decoded
+    const preload = (url) => new Promise((resolve) => {
+        const im = new Image();
+        im.onload = () => {
+            (im.decode ? im.decode() : Promise.resolve()).catch(() => { }).then(() => resolve(true));
+        };
+        im.onerror = () => resolve(false);
+        im.src = url;
+    });
+
+    // Upgrade every cover to a new version; swap each one in as soon as ITS file is ready,
+    // resolve when all of them are done.
+    const upgradeAll = (suffix) => Promise.all(coverImgs.map(async (img) => {
+        const url = variantUrl(img, suffix);
+        if (await preload(url)) img.src = url;
+    }));
+
+    (async () => {
+        await Promise.all(coverImgs.map(imgSettled));   // 1. all 64px loaded
+        await upgradeAll('256');                        // 2. background-load 256px, swap each in
+        await upgradeAll('');                           // 3. then the full-size originals
+    })();
 })();
